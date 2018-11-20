@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Мой чат</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+      div.msg_bbl {
+        background-color: #ddd;
+        padding: 5px 10px;
+        border-radius: 10px;
+        color: #555;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+        <div class="well text-center">
+            <h3 >Мой чат</h3>
+        </div>
+        <div class="col-sm-8">
+            <div class="nomsg">
+                <h1 style="color: #ccc">Тут пока нет сообщений</h1>
+                <div class="msg-wrapper"></div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <form action="" method="post">
+                <b>Введите сообщение ниже <span class="glyphicon glyphicon-arrow-down"></span> </b>
+                <hr>
+                <div class="form-group">
+                    <label for="exampleInput">Имя пользователя</label>
+                    <input  class="username form-control" id="exampleInput"  placeholder="Введите ваше имя">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInput">Сообщение</label>
+                    <input  class="message form-control" id="exampleInput" placeholder="Введите сообщение">
+                </div>
+                <button type="submit" class="btn btn-success">Отправить <span class="glyphicon glyphicon-send"></span> </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+
+    <script>
+        var socket = io.connect( 'http://127.0.0.1:5000' )
+        //транслировать сообщение
+        socket.on( 'connect', function() {
+            socket.emit( 'my event', {
+                data : 'User Connected'
+            } )
+        } )
+        var form = $( 'form' ).on('submit', function(e) {
+            e.preventDefault()
+            var user_name = $( 'input.username' ).val()
+            var message = $( 'input.message' ).val()
+            socket.emit( 'my event', {
+                user : user_name,
+                msg : message
+              })
+            //очистить поле сообщения
+            $( 'input.message' ).val( '' ).focus()
+            })
+
+        //захват сообщения, если сообщение есть
+        //удаляем h1 с
+        socket.on('my response', function(msg){
+            if(typeof msg.user !=='undefined') {
+                $( 'h1' ).remove()
+                $( 'div.msg-wrapper').append('<div class="msg_bbl"><b>'+msg.user+'</b> '+msg.msg+'</div>')
+            }
+            console.log(msg)
+        } )
+    </script>
+  </body>
+</html>
